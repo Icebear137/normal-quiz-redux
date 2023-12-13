@@ -21,13 +21,13 @@ const Quiz = () => {
 
     if (currentQuestion + 1 === questionsWithShuffledOptions.length) {
       dispatch(setShowScore(true));
+      dispatch(resetQuestion());
     }
   };
 
   const handleReset = () => {
-    dispatch(resetPersistedStateAction());
+    // dispatch(resetPersistedStateAction());
     dispatch(setShowScore(false));
-    dispatch(resetQuestion());
   };
 
   return (
