@@ -37,7 +37,7 @@ const quizSlice = createSlice({
     },
     resetQuestion: (state) => {
       state.currentQuestion = 0;
-      state.questionsWithShuffledOptions = questionsWithShuffledOptions;
+      state.questionsWithShuffledOptions = shuffleArray(state.questionsWithShuffledOptions);
     }
   },
 });
