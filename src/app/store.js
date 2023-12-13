@@ -1,11 +1,34 @@
 import { configureStore } from '@reduxjs/toolkit';
-import quizReducer from '../features/quiz/quizSlice';
-import questions from '../features/quiz/questions';
+import { 
+  persistStore, 
+  persistReducer,
+  FLUSH,
+  REHYDRATE,
+  PAUSE,
+  PERSIST,
+  PURGE,
+  REGISTER, 
+} from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
+import rootReducer from './rootReducer'; // Make sure this path is correct
+
+const persistConfig = {
+  key: 'root',
+  storage,
+};
+
+const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 const store = configureStore({
-  reducer: {
-    quiz: quizReducer,
-  },
+  reducer: persistedReducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+      },
+    }),
 });
 
-export default store;
+let persistor = persistStore(store);
+
+export { store, persistor };

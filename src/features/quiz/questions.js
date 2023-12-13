@@ -38,7 +38,7 @@ const questions = [
         { answerText: '6', isCorrect: false },
         { answerText: '7', isCorrect: true },
       ],
-    },
+    }
   ];
   
   export default questions;

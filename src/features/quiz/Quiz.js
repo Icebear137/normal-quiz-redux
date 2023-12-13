@@ -1,13 +1,16 @@
-// Quiz.js
-
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { nextQuestion, increaseScore, setShowScore } from './quizSlice';
+import { nextQuestion, increaseScore, setShowScore, resetQuestion, resetPersistedState } from './quizSlice';
 import Question from './Question';
+import Answers from './Answers';
+import { persistor } from '../../app/store';
+import { resetPersistedStateAction } from './quizAction';
 
 const Quiz = () => {
   const dispatch = useDispatch();
   const { currentQuestion, score, showScore, questionsWithShuffledOptions } = useSelector((state) => state.quiz);
+
+
 
   const handleAnswerOptionClick = (isCorrect) => {
     if (isCorrect) {
@@ -21,21 +24,29 @@ const Quiz = () => {
     }
   };
 
+  const handleReset = () => {
+    dispatch(resetPersistedStateAction());
+    dispatch(setShowScore(false));
+    dispatch(resetQuestion());
+  };
+
   return (
     <div className='quiz'>
-	  {showScore ? (
-		<div className='score-section'>
-		  You scored {score} out of {questionsWithShuffledOptions.length}
-		</div>
-	  ) : (
-		<>
-		  <Question
-			question={questionsWithShuffledOptions[currentQuestion]}
-			handleAnswerOptionClick={handleAnswerOptionClick}
-		  />
-		</>
-	  )}
-	</div>
+      {showScore ? (
+        <div className='score-section'>
+          You scored {score} out of {questionsWithShuffledOptions.length}
+          <Answers />
+          <button onClick={() => handleReset()}>Reset</button>
+        </div>
+      ) : (
+        <>
+          <Question
+            question={questionsWithShuffledOptions[currentQuestion]}
+            handleAnswerOptionClick={handleAnswerOptionClick}
+          />
+        </>
+      )}
+    </div>
   );
 };
 

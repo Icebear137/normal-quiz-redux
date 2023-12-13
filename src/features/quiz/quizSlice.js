@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import questions from './questions'; // Adjust the path accordingly
+import { persistor } from '../../app/store';
 
 const shuffleArray = (array) => {
   const newArray = [...array];
@@ -34,9 +35,13 @@ const quizSlice = createSlice({
     setShowScore: (state, action) => {
       state.showScore = action.payload;
     },
+    resetQuestion: (state) => {
+      state.currentQuestion = 0;
+      state.questionsWithShuffledOptions = questionsWithShuffledOptions;
+    }
   },
 });
 
-export const { nextQuestion, increaseScore, setShowScore } = quizSlice.actions;
+export const { nextQuestion, increaseScore, setShowScore, resetQuestion, resetPersistedState } = quizSlice.actions;
 
 export default quizSlice.reducer;
