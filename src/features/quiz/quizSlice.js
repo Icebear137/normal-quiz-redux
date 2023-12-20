@@ -1,6 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
 import questions from './questions'; // Adjust the path accordingly
-import { persistor } from '../../app/store';
 
 const shuffleArray = (array) => {
   const newArray = [...array];
@@ -11,11 +10,45 @@ const shuffleArray = (array) => {
   return newArray;
 };
 
-// Shuffling answer options for each question
-const questionsWithShuffledOptions = questions.map((question) => ({
-  ...question,
-  answerOptions: shuffleArray(question.answerOptions),
-}));
+const shuffleAnswerOptions = (questions) => {
+  return questions.map((question) => {
+    if (question.questionType === 0) {
+      // Shuffle answer options for normal questions
+      return {
+        ...question,
+        answerOptions: shuffleArray(question.answerOptions),
+      };
+    } else if (question.questionType === 1) {
+      // Shuffle answer options for paragraph questions
+      const shuffledParagraphOptions = question.questionOptions.map((paragraphOption) => ({
+        ...paragraphOption,
+        answerOptions: shuffleArray(paragraphOption.answerOptions),
+      }));
+
+      return {
+        ...question,
+        questionOptions: shuffledParagraphOptions,
+      };
+    }
+
+    return question;
+  });
+};
+
+const shuffleQuestions = (questions) => {
+  const normalQuestions = questions.filter((q) => q.questionType === 0);
+  const paragraphQuestions = questions.filter((q) => q.questionType === 1);
+
+  // Shuffle answer options for normal and paragraph questions
+  const shuffledQuestions = shuffleAnswerOptions(normalQuestions).concat(
+    shuffleAnswerOptions(paragraphQuestions)
+  );
+
+  // Shuffle the combined questions
+  return shuffleArray(shuffledQuestions);
+};
+
+const shuffledQuestions = shuffleQuestions(questions);
 
 const quizSlice = createSlice({
   name: 'quiz',
@@ -23,11 +56,15 @@ const quizSlice = createSlice({
     currentQuestion: 0,
     score: 0,
     showScore: false,
-    questionsWithShuffledOptions: questionsWithShuffledOptions,
+    questionsWithShuffledOptions: shuffledQuestions,
   },
   reducers: {
     nextQuestion: (state) => {
       state.currentQuestion += 1;
+    },
+    prevQuestion: (state) => {
+      state.currentQuestion -= 1;
+      state.score -= 1;
     },
     increaseScore: (state) => {
       state.score += 1;
@@ -37,11 +74,21 @@ const quizSlice = createSlice({
     },
     resetQuestion: (state) => {
       state.currentQuestion = 0;
-      state.questionsWithShuffledOptions = shuffleArray(state.questionsWithShuffledOptions);
-    }
+      state.questionsWithShuffledOptions = shuffleQuestions(questions);
+    },
+    resetScore: (state) => {
+      state.score = 0;
+    },
   },
 });
 
-export const { nextQuestion, increaseScore, setShowScore, resetQuestion, resetPersistedState } = quizSlice.actions;
+export const {
+  nextQuestion,
+  prevQuestion,
+  increaseScore,
+  setShowScore,
+  resetQuestion,
+  resetScore,
+} = quizSlice.actions;
 
 export default quizSlice.reducer;
