@@ -5,11 +5,11 @@ import Question from './Question';
 import Answers from './Answers';
 import { persistor } from '../../app/store';
 import { resetPersistedStateAction } from './quizAction';
+import axios from 'axios';
 
 const Quiz = () => {
   const dispatch = useDispatch();
   const { currentQuestion, score, showScore, questionsWithShuffledOptions } = useSelector((state) => state.quiz);
-
 
 
   const handleAnswerOptionClick = (isCorrect) => {
