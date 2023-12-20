@@ -1,6 +1,7 @@
 const questions = [
     {
       questionID: 1,
+      questionType: 0,
       questionText: 'What is the capital of France?',
       answerOptions: [
         { answerText: 'New York', isCorrect: false },
@@ -11,6 +12,7 @@ const questions = [
     },
     {
       questionID: 2,
+      questionType: 0,
       questionText: 'Who is CEO of Tesla?',
       answerOptions: [
         { answerText: 'Jeff Bezos', isCorrect: false },
@@ -19,26 +21,28 @@ const questions = [
         { answerText: 'Tony Stark', isCorrect: false },
       ],
     },
+    //create a new paragraph question
     {
       questionID: 3,
-      questionText: 'The iPhone was created by which company?',
-      answerOptions: [
-        { answerText: 'Apple', isCorrect: true },
-        { answerText: 'Intel', isCorrect: false },
-        { answerText: 'Amazon', isCorrect: false },
-        { answerText: 'Microsoft', isCorrect: false },
+      questionType: 1,
+      questionParagraph: 'This is a paragraph question. Take a look at the code below:',
+      questionOptions: [
+        {questionText: 'This is the first answer option for the paragraph question 1.', 
+         answerOptions: [
+          { answerText: 'This is a wrong answer for the paragraph question 1.', isCorrect: false },
+          { answerText: 'This is a correct answer for the paragraph question 1 true.', isCorrect: true },
+          { answerText: 'This is a wrong answer for the paragraph question 1.', isCorrect: false },
+          { answerText: 'This is a wrong answer for the paragraph question 1.', isCorrect: false },
+        ]},
+        {questionText: 'This is the second answer option for the paragraph question 2.', 
+         answerOptions: [
+          { answerText: 'This is a wrong answer for the paragraph question 2.', isCorrect: false },
+          { answerText: 'This is a wrong answer for the paragraph question 2.', isCorrect: false },
+          { answerText: 'This is a correct answer for the paragraph question 2 true.', isCorrect: true },
+          { answerText: 'This is a wrong answer for the paragraph question 2.', isCorrect: false },
+        ]},
       ],
     },
-    {
-      questionID: 4,
-      questionText: 'How many Harry Potter books are there?',
-      answerOptions: [
-        { answerText: '1', isCorrect: false },
-        { answerText: '4', isCorrect: false },
-        { answerText: '6', isCorrect: false },
-        { answerText: '7', isCorrect: true },
-      ],
-    }
   ];
   
   export default questions;
