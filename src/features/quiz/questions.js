@@ -2,6 +2,7 @@ const questions = [
     {
       questionID: 1,
       questionType: 0,
+      subQuestionCount: 1,
       questionText: 'What is the capital of France?',
       answerOptions: [
         { answerText: 'New York', isCorrect: false },
@@ -13,6 +14,7 @@ const questions = [
     {
       questionID: 2,
       questionType: 0,
+      subQuestionCount: 1,
       questionText: 'Who is CEO of Tesla?',
       answerOptions: [
         { answerText: 'Jeff Bezos', isCorrect: false },
@@ -25,6 +27,7 @@ const questions = [
     {
       questionID: 3,
       questionType: 1,
+      subQuestionCount: 2,
       questionParagraph: 'This is a paragraph question. Take a look at the code below:',
       questionOptions: [
         {questionText: 'This is the first answer option for the paragraph question 1.', 

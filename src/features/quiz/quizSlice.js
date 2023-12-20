@@ -54,6 +54,8 @@ const quizSlice = createSlice({
   name: 'quiz',
   initialState: {
     currentQuestion: 0,
+    correct: false,
+    prevAnswer: false,
     score: 0,
     showScore: false,
     questionsWithShuffledOptions: shuffledQuestions,
@@ -64,10 +66,18 @@ const quizSlice = createSlice({
     },
     prevQuestion: (state) => {
       state.currentQuestion -= 1;
-      state.score -= 1;
+    },
+    answerCorrectly: (state, action) => {
+      state.correct= action.payload;
+    },
+    previousAnswer: (state, action) => {
+      state.prevAnswer = action.payload;
     },
     increaseScore: (state) => {
       state.score += 1;
+    },
+    decreaseScore: (state) => {
+      state.score -= 1;
     },
     setShowScore: (state, action) => {
       state.showScore = action.payload;
@@ -85,7 +95,10 @@ const quizSlice = createSlice({
 export const {
   nextQuestion,
   prevQuestion,
+  answerCorrectly,
+  previousAnswer,
   increaseScore,
+  decreaseScore,
   setShowScore,
   resetQuestion,
   resetScore,

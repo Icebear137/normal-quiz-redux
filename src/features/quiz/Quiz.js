@@ -3,7 +3,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
   nextQuestion,
   prevQuestion,
+  answerCorrectly,
+  previousAnswer,
   increaseScore,
+  decreaseScore,
   setShowScore,
   resetQuestion,
   resetScore,
@@ -16,27 +19,34 @@ const Quiz = () => {
   const {
     currentQuestion,
     score,
+    correct,
+    prevAnswer,
     showScore,
     questionsWithShuffledOptions,
   } = useSelector((state) => state.quiz);
   const [selectedAnswer, setSelectedAnswer] = useState(true);
 
   const handleNext = () => {
-    if (selectedAnswer) {
+    if (correct) {
       dispatch(increaseScore());
-      setSelectedAnswer(0);
+      dispatch(previousAnswer(true));
     }
     dispatch(nextQuestion());
-
+    //reset state event
+    dispatch(answerCorrectly(false));
     if (currentQuestion === questionsWithShuffledOptions.length - 1) {
       dispatch(setShowScore(true));
       dispatch(resetQuestion());
     }
   };
 
-  const handlePrev = () => {
-    dispatch(prevQuestion());
-  };
+  // const handlePrev = () => {
+  //   dispatch(prevQuestion());
+  //   if (prevAnswer) {
+  //     dispatch(decreaseScore());
+  //     dispatch(previousAnswer(false));
+  //   }
+  // };
 
   const handleReset = () => {
     dispatch(resetScore());
@@ -58,7 +68,7 @@ const Quiz = () => {
             setSelectedAnswer={setSelectedAnswer}
           />
           <div>
-            <button onClick={() => handlePrev()}>Prev</button>
+            {/* <button onClick={() => handlePrev()}>Prev</button> */}
             <button onClick={() => handleNext()}>Next</button>
           </div>
         </>
