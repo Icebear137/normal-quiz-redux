@@ -1,7 +1,8 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-const getQuestions = async () => {
+// Create an async thunk for fetching questions
+export const fetchQuestionsAsync = createAsyncThunk('quiz/fetchQuestions', async () => {
   try {
     const response = await axios.get(
       'https://quizapi.io/api/v1/questions?apiKey=BORDzSEO24fBpViv8JmQidSF4UaYcd49qVhxbXxu&category=code&limit=20&tags=JavaScript&offset=20'
@@ -9,27 +10,9 @@ const getQuestions = async () => {
     return response.data;
   } catch (error) {
     console.error('Error fetching questions:', error);
-    return [];
+    throw error;
   }
-};
-
-const fetchQuestions = async () => {
-  const data = await getQuestions();
-  const transformedData = data.map((item, index) => ({
-    questionID: index + 1,
-    questionText: item.question,
-    answerOptions: Object.keys(item.answers)
-    .filter((key) => item.answers[key] !== null) // Remove null answerText
-    .map((key) => ({
-      answerText: item.answers[key],
-      isCorrect: key === item.correct_answer,
-    })),
-  }));
-
-  console.log('transformedData', transformedData);
-
-  return transformedData; // Return the transformed data
-};
+});
 
 const shuffleArray = (array) => {
   const newArray = [...array];
@@ -40,34 +23,15 @@ const shuffleArray = (array) => {
   return newArray;
 };
 
-const initializeQuestions = async () => {
-  const transformedData = await fetchQuestions();
-
-  // Update the questions array with the transformed data
-  const questions = transformedData;
-
-  // Shuffling answer options for each question
-  const questionsWithShuffledOptions = questions.map((question) => ({
-    ...question,
-    answerOptions: shuffleArray(question.answerOptions),
-  }));
-
-  return {
-    questions,
-    questionsWithShuffledOptions,
-  };
-};
-
-// Call the async function to initialize the questions
-const { questions, questionsWithShuffledOptions } = await initializeQuestions();
-
 const quizSlice = createSlice({
   name: 'quiz',
   initialState: {
     currentQuestion: 0,
     score: 0,
     showScore: false,
-    questionsWithShuffledOptions: questionsWithShuffledOptions,
+    questionsWithShuffledOptions: [],
+    status: 'idle', // Possible values: 'idle', 'loading', 'succeeded', 'failed'
+    error: null,
   },
   reducers: {
     nextQuestion: (state) => {
@@ -83,6 +47,31 @@ const quizSlice = createSlice({
       state.currentQuestion = 0;
       state.questionsWithShuffledOptions = shuffleArray(state.questionsWithShuffledOptions);
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchQuestionsAsync.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchQuestionsAsync.fulfilled, (state, action) => {
+        const transformedData = action.payload.map((item, index) => ({
+          questionID: index + 1,
+          questionText: item.question,
+          answerOptions: Object.keys(item.answers)
+            .filter((key) => item.answers[key] !== null)
+            .map((key) => ({
+              answerText: item.answers[key],
+              isCorrect: item.correct_answers[key + '_correct'] === 'true',
+            })),
+        }));
+
+        state.questionsWithShuffledOptions = shuffleArray(transformedData);
+        state.status = 'succeeded';
+      })
+      .addCase(fetchQuestionsAsync.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+      });
   },
 });
 
