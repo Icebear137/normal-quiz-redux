@@ -5,13 +5,20 @@ import { increaseScore, decreaseScore, answerCorrectly } from './quizSlice';
 const Question = ({ question, setSelectedAnswer }) => {
   const dispatch = useDispatch();
   const { currentQuestion } = useSelector((state) => state.quiz);
-  const [subQuestionCount, setSubQuestionCount] = useState(0);
+  const [subQuestionAnswers, setSubQuestionAnswers] = useState([]);
 
   useEffect(() => {
-    if (subQuestionCount === question.subQuestionCount) {
-      dispatch(answerCorrectly(true));
+    // Check if all sub-questions are answered
+    const allSubQuestionsAnswered = subQuestionAnswers.every(answer => answer !== null);
+
+    if (allSubQuestionsAnswered) {
+      // Check if all sub-questions are answered correctly
+      const allSubQuestionsCorrect = subQuestionAnswers.every(answer => answer === true);
+
+      // Dispatch the answerCorrectly action
+      dispatch(answerCorrectly(allSubQuestionsCorrect));
     }
-  }, [subQuestionCount, dispatch]);
+  }, [subQuestionAnswers, dispatch]);
   
 
 
@@ -34,15 +41,11 @@ const Question = ({ question, setSelectedAnswer }) => {
                         type="radio"
                         id={`radio-${index}-${answerIndex}`}
                         name={`radio-${index}`}
-                        onChange={(e)=>{const isCorrect = answerOption.isCorrect;
-                          if (e.target.checked && isCorrect) {
-                            setSubQuestionCount(subQuestionCount + 1);
-                          }else{
-                            if(subQuestionCount > 0 && subQuestionCount <= question.subQuestionCount){
-                              setSubQuestionCount(subQuestionCount - 1);
-                            }
-                            dispatch(answerCorrectly(false));
-                          }
+                        onChange={(e)=>{
+                          const isCorrect = answerOption.isCorrect;
+                          const newSubQuestionAnswers = [...subQuestionAnswers];
+                          newSubQuestionAnswers[index] = e.target.checked && isCorrect;
+                          setSubQuestionAnswers(newSubQuestionAnswers);
                         }}
                       />
                       {answerOption.answerText}
