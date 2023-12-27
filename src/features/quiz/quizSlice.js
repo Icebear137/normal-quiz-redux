@@ -1,6 +1,44 @@
 import { createSlice } from '@reduxjs/toolkit';
 import questions from './questions'; // Adjust the path accordingly
 
+const flattenQuestions = (questions, parentParagraph = []) => {
+  let flatQuestions = [];
+
+  for (const question of questions) {
+    let combinedParentParagraph = [...parentParagraph];
+
+    if (question.parentID !== null) {
+      combinedParentParagraph.push(
+        question.parentParagraph || question.questionParagraph
+      );
+    }
+
+    const flatQuestion = {
+      questionID: question.questionID,
+      questionType: question.questionType,
+      subQuestionCount: question.subQuestionCount,
+      questionText: question.questionText,
+      answerOptions: question.answerOptions,
+      parentParagraph: combinedParentParagraph,
+      parentID: question.parentID,
+    };
+
+    flatQuestions.push(flatQuestion);
+
+    if (question.questionOptions) {
+      flatQuestions = flatQuestions.concat(
+        flattenQuestions(question.questionOptions, combinedParentParagraph)
+      );
+    }
+  }
+
+  return flatQuestions;
+};
+
+const flattenedQuestions = flattenQuestions(
+  questions.filter((question) => question.questionType === 1)
+);
+
 const shuffleArray = (array) => {
   const newArray = [...array];
   for (let i = newArray.length - 1; i > 0; i--) {
@@ -13,21 +51,24 @@ const shuffleArray = (array) => {
 const shuffleAnswerOptions = (questions) => {
   return questions.map((question) => {
     if (question.questionType === 0) {
-      // Shuffle answer options for normal questions
       return {
         ...question,
         answerOptions: shuffleArray(question.answerOptions),
       };
     } else if (question.questionType === 1) {
-      // Shuffle answer options for paragraph questions
-      const shuffledParagraphOptions = question.questionOptions.map((paragraphOption) => ({
-        ...paragraphOption,
-        answerOptions: shuffleArray(paragraphOption.answerOptions),
-      }));
-
+      const flatQuestions = flattenQuestions(
+        question.questionOptions || [],
+        question.questionParagraph,
+        question.questionID
+      );
       return {
         ...question,
-        questionOptions: shuffledParagraphOptions,
+        questionOptions: shuffleArray(flatQuestions).map(
+          (subQuestion) => ({
+            ...subQuestion,
+            isCorrect: false,
+          })
+        ),
       };
     }
 
@@ -36,29 +77,48 @@ const shuffleAnswerOptions = (questions) => {
 };
 
 const shuffleQuestions = (questions) => {
-  const normalQuestions = questions.filter((q) => q.questionType === 0);
-  const paragraphQuestions = questions.filter((q) => q.questionType === 1);
+  const flattenedQuestions = flattenQuestions(questions.filter((question) => question.questionType === 1));
+  const shuffledByType = flattenedQuestions.reduce((acc, question) => {
+    acc[question.questionType] = acc[question.questionType] || [];
+    acc[question.questionType].push(question);
+    return acc;
+  }, {});
 
-  // Shuffle answer options for normal and paragraph questions
-  const shuffledQuestions = shuffleAnswerOptions(normalQuestions).concat(
-    shuffleAnswerOptions(paragraphQuestions)
+  const shuffledQuestions = Object.values(shuffledByType).map((group) =>
+    shuffleArray(group)
   );
 
-  // Shuffle the combined questions
-  return shuffleArray(shuffledQuestions);
+  return [].concat(...shuffledQuestions).map((question) => ({
+    ...question,
+    questionOptions: shuffleAnswerOptions(question.questionOptions || []),
+  }));
 };
 
+
 const shuffledQuestions = shuffleQuestions(questions);
+const flattenedQuestion = flattenQuestions(questions);
+
+const flattenedQuestionsCount = () => {
+  return flattenedQuestion.filter(flattenQuestions => flattenQuestions.questionType === 0).length;
+}
+
+const flattenedQuestionsFilter = () => {
+  return flattenedQuestion.filter(flattenQuestions => flattenQuestions.questionType === 0);
+}
+
+console.log(shuffledQuestions);
+console.log(flattenQuestions(questions));
 
 const quizSlice = createSlice({
   name: 'quiz',
   initialState: {
     currentQuestion: 0,
     correct: false,
-    prevAnswer: false,
     score: 0,
+    questionsCount: flattenedQuestionsCount(),
     showScore: false,
     questionsWithShuffledOptions: shuffledQuestions,
+    flattenedQuestions: flattenedQuestionsFilter(flattenedQuestion),
   },
   reducers: {
     nextQuestion: (state) => {
@@ -68,7 +128,7 @@ const quizSlice = createSlice({
       state.currentQuestion -= 1;
     },
     answerCorrectly: (state, action) => {
-      state.correct= action.payload;
+      state.correct = action.payload;
     },
     previousAnswer: (state, action) => {
       state.prevAnswer = action.payload;

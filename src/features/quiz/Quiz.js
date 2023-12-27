@@ -20,21 +20,20 @@ const Quiz = () => {
     currentQuestion,
     score,
     correct,
-    prevAnswer,
+    questionsCount,
     showScore,
     questionsWithShuffledOptions,
+    flattenedQuestions,
   } = useSelector((state) => state.quiz);
-  const [selectedAnswer, setSelectedAnswer] = useState(true);
-
+  
   const handleNext = () => {
     if (correct) {
       dispatch(increaseScore());
-      dispatch(previousAnswer(true));
     }
     dispatch(nextQuestion());
     //reset state event
     dispatch(answerCorrectly(false));
-    if (currentQuestion === questionsWithShuffledOptions.length - 1) {
+    if (currentQuestion === questionsCount - 1) {
       dispatch(setShowScore(true));
       dispatch(resetQuestion());
     }
@@ -58,14 +57,14 @@ const Quiz = () => {
       {showScore ? (
         <div className="score-section">
           You scored {score} out of {questionsWithShuffledOptions.length}
-          <Answers />
+          {/* <Answers /> */}
           <button onClick={() => handleReset()}>Reset</button>
         </div>
       ) : (
         <>
           <Question
             question={questionsWithShuffledOptions[currentQuestion]}
-            setSelectedAnswer={setSelectedAnswer}
+            flattenedQuestions={flattenedQuestions[currentQuestion]}
           />
           <div>
             {/* <button onClick={() => handlePrev()}>Prev</button> */}
