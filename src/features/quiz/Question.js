@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { answerCorrectly } from './quizSlice';
+import { answerCorrectly, correctAnswers } from './quizSlice';
 
 const Question = ({ question, flattenedQuestions }) => {
   const dispatch = useDispatch();

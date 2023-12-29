@@ -118,7 +118,7 @@ const quizSlice = createSlice({
     questionsCount: flattenedQuestionsCount(),
     showScore: false,
     questionsWithShuffledOptions: shuffledQuestions,
-    flattenedQuestions: flattenedQuestionsFilter(flattenedQuestion),
+    flattenedQuestions: flattenedQuestionsFilter(flattenedQuestion)
   },
   reducers: {
     nextQuestion: (state) => {
@@ -157,6 +157,7 @@ export const {
   prevQuestion,
   answerCorrectly,
   previousAnswer,
+  correctAnswers,
   increaseScore,
   decreaseScore,
   setShowScore,
