@@ -5,7 +5,9 @@ import Quiz from './features/quiz/Quiz';
 
 function App() {
   return (
-    <Quiz />
+    <div className='flex m-auto h-screen'>
+      <Quiz />  
+    </div>
   );
 }
 
