@@ -4,6 +4,7 @@ import {
   nextQuestion,
   prevQuestion,
   answerCorrectly,
+  setScore,
   setShowScore,
   resetQuestion,
   resetScore,
@@ -17,6 +18,7 @@ const Quiz = () => {
   const {
     currentQuestion,
     correct,
+    score,
     questionsCount,
     showScore,
     questionsWithShuffledOptions,
@@ -45,6 +47,7 @@ const Quiz = () => {
     dispatch(answerCorrectly(false));
 
     if (currentQuestion === questionsCount - 1) {
+      dispatch(setScore(correctAnswersCount));
       dispatch(setShowScore(true));
       dispatch(resetQuestion());
     }
@@ -55,6 +58,7 @@ const Quiz = () => {
   }
 
   const handleReset = () => {
+    allQuestionsAnswer.current = Array(questionsCount).fill(false);
     dispatch(resetScore());
     dispatch(setShowScore(false));
   };
@@ -91,7 +95,7 @@ const Quiz = () => {
               })()}
             </div>
           </div>
-          <div className='border-[1px] rounded-[10px] py-[10px] px-[15px] bg-gray-200 flex m-auto mt-[30px] items-center gap-[2px] hover:bg-gray-50 transition hover:delay-150 hover:duration-300 hover:ease-in-out hover:scale-105' onClick={() => handleReset()}>
+          <div className='border-[1px] rounded-[10px] py-[10px] px-[15px] bg-gray-200 flex m-auto mt-[30px] items-center gap-[2px] hover:bg-gray-50 transition hover:delay-150 hover:duration-300 hover:ease-in-out hover:scale-105 cursor-pointer' onClick={() => handleReset()}>
             <TbReload />
             <span>Reset</span>
           </div>
@@ -104,12 +108,12 @@ const Quiz = () => {
           />
           <div className='flex place-content-between bottom-0 p-[20px] mt-[30px]'>
             {currentQuestion === 0 ? null : (
-              <div className='border-[1px] rounded-[10px] py-[10px] px-[15px] bg-gray-200 flex m-auto mt-[30px] items-center gap-[2px] hover:bg-gray-50 transition hover:duration-300 hover:ease-in-out hover:scale-105' onClick={() => handlePrev()}>
+              <div className='border-[1px] rounded-[10px] py-[10px] px-[15px] bg-gray-200 flex m-auto mt-[30px] items-center gap-[2px] hover:bg-gray-50 transition hover:duration-300 hover:ease-in-out hover:scale-105 cursor-pointer' onClick={() => handlePrev()}>
                 <MdNavigateBefore />
                 <span>Prev</span>
             </div>
             )}
-              <div className='border-[1px] rounded-[10px] py-[10px] px-[15px] bg-blue-500 flex m-auto mt-[30px] items-center gap-[2px] hover:bg-blue-400 transition hover:duration-300 hover:ease-in-out hover:scale-105 text-white' onClick={() => handleNext()}> 
+              <div className='border-[1px] rounded-[10px] py-[10px] px-[15px] bg-blue-500 flex m-auto mt-[30px] items-center gap-[2px] hover:bg-blue-400 transition hover:duration-300 hover:ease-in-out hover:scale-105 text-white cursor-pointer' onClick={() => handleNext()}> 
                 <span>Next</span>
                 <MdNavigateNext />
             </div>          
