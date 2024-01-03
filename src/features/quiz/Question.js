@@ -2,10 +2,9 @@ import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { answerCorrectly, correctAnswers } from './quizSlice';
 
-const Question = ({ question, flattenedQuestions }) => {
+const Question = ({ question, flattenedQuestions, setSelectedAnswer }) => {
   const dispatch = useDispatch();
   const { currentQuestion } = useSelector((state) => state.quiz);
-
 
   return (
     <>
@@ -26,7 +25,10 @@ const Question = ({ question, flattenedQuestions }) => {
                     name={`question${currentQuestion}`}
                     className='mr-[10px]'
                     value={index}
-                    onChange={() => dispatch(answerCorrectly(option.isCorrect))}
+                    onChange={() => {
+                      dispatch(answerCorrectly(option.isCorrect))
+                      setSelectedAnswer(option.isCorrect)
+                    }}
                   />
                   {option.answerText}
                 </label>

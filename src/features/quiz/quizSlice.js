@@ -1,5 +1,5 @@
-import { createSlice } from '@reduxjs/toolkit';
-import questions from './questions'; // Adjust the path accordingly
+import { createSlice } from "@reduxjs/toolkit";
+import questions from "./questions"; // Adjust the path accordingly
 
 const flattenQuestions = (questions, parentParagraph = []) => {
   let flatQuestions = [];
@@ -35,10 +35,6 @@ const flattenQuestions = (questions, parentParagraph = []) => {
   return flatQuestions;
 };
 
-const flattenedQuestions = flattenQuestions(
-  questions.filter((question) => question.questionType === 1)
-);
-
 const shuffleArray = (array) => {
   const newArray = [...array];
   for (let i = newArray.length - 1; i > 0; i--) {
@@ -48,77 +44,35 @@ const shuffleArray = (array) => {
   return newArray;
 };
 
-const shuffleAnswerOptions = (questions) => {
-  return questions.map((question) => {
-    if (question.questionType === 0) {
-      return {
-        ...question,
-        answerOptions: shuffleArray(question.answerOptions),
-      };
-    } else if (question.questionType === 1) {
-      const flatQuestions = flattenQuestions(
-        question.questionOptions || [],
-        question.questionParagraph,
-        question.questionID
-      );
-      return {
-        ...question,
-        questionOptions: shuffleArray(flatQuestions).map(
-          (subQuestion) => ({
-            ...subQuestion,
-            isCorrect: false,
-          })
-        ),
-      };
-    }
-
-    return question;
-  });
-};
-
-const shuffleQuestions = (questions) => {
-  const flattenedQuestions = flattenQuestions(questions.filter((question) => question.questionType === 1));
-  const shuffledByType = flattenedQuestions.reduce((acc, question) => {
-    acc[question.questionType] = acc[question.questionType] || [];
-    acc[question.questionType].push(question);
-    return acc;
-  }, {});
-
-  const shuffledQuestions = Object.values(shuffledByType).map((group) =>
-    shuffleArray(group)
-  );
-
-  return [].concat(...shuffledQuestions).map((question) => ({
-    ...question,
-    questionOptions: shuffleAnswerOptions(question.questionOptions || []),
-  }));
-};
-
-
-const shuffledQuestions = shuffleQuestions(questions);
 const flattenedQuestion = flattenQuestions(questions);
 
 const flattenedQuestionsCount = () => {
-  return flattenedQuestion.filter(flattenQuestions => flattenQuestions.questionType === 0).length;
-}
+  return flattenedQuestion.filter(
+    (flattenQuestions) => flattenQuestions.questionType === 0
+  ).length;
+};
 
 const flattenedQuestionsFilter = () => {
-  return flattenedQuestion.filter(flattenQuestions => flattenQuestions.questionType === 0);
-}
+  return flattenedQuestion.filter(
+    (flattenQuestions) => flattenQuestions.questionType === 0
+  );
+};
 
-console.log(shuffledQuestions);
-console.log(flattenQuestions(questions));
+const flatQuestionShuffled = shuffleArray(
+  flattenedQuestionsFilter(flattenedQuestion)
+);
+
+console.log(flattenedQuestion);
 
 const quizSlice = createSlice({
-  name: 'quiz',
+  name: "quiz",
   initialState: {
     currentQuestion: 0,
     correct: false,
     score: 0,
     questionsCount: flattenedQuestionsCount(),
     showScore: false,
-    questionsWithShuffledOptions: shuffledQuestions,
-    flattenedQuestions: flattenedQuestionsFilter(flattenedQuestion)
+    flattenedQuestions: [...flatQuestionShuffled],
   },
   reducers: {
     nextQuestion: (state) => {
@@ -141,7 +95,7 @@ const quizSlice = createSlice({
     },
     resetQuestion: (state) => {
       state.currentQuestion = 0;
-      state.questionsWithShuffledOptions = shuffleQuestions(questions);
+      state.flattenedQuestions = shuffleArray(flatQuestionShuffled);
     },
     resetScore: (state) => {
       state.score = 0;
