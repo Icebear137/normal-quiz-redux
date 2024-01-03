@@ -130,8 +130,8 @@ const quizSlice = createSlice({
     answerCorrectly: (state, action) => {
       state.correct = action.payload;
     },
-    previousAnswer: (state, action) => {
-      state.prevAnswer = action.payload;
+    setCurrentQuestion: (state, action) => {
+      state.currentQuestion = action.payload;
     },
     setScore: (state, action) => {
       state.score = action.payload;
@@ -154,6 +154,7 @@ export const {
   prevQuestion,
   answerCorrectly,
   previousAnswer,
+  setCurrentQuestion,
   correctAnswers,
   setScore,
   setShowScore,

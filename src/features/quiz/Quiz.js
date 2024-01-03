@@ -12,6 +12,8 @@ import {
 import Question from './Question';
 import { TbReload } from "react-icons/tb";
 import { MdNavigateNext, MdNavigateBefore } from "react-icons/md";
+import Result from './Result';
+import ListQuestions from './ListQuestions';
 
 const Quiz = () => {
   const dispatch = useDispatch();
@@ -64,44 +66,16 @@ const Quiz = () => {
   };
 
   return (
-    <div className="quiz flex m-auto border-[1px] min-w-[1000px]  rounded-[10px] shadow-sm">
+    <div className="quiz flex m-auto w-full ">
       {showScore ? (
-        <div className="score-section flex flex-col m-auto min-h-[200px] w-full p-[20px]">
-          <div className='flex flex-col m-auto'>
-            <span className='text-[30px] font-semibold text-blue-500'>You scored</span> 
-            <div className='text-center'>
-              {(() => {
-                let result;
-
-                switch (true) {
-                  case correctAnswersCount < questionsWithShuffledOptions.length / 2:
-                    result = <span className='text-[40px] font-semibold text-red-600'>{correctAnswersCount}</span>;
-                    break;
-                  case correctAnswersCount === questionsWithShuffledOptions.length :
-                    result = <span className='text-[40px] font-semibold text-green-600'>{correctAnswersCount}</span>;
-                    break;
-                  default:
-                    result = <span className='text-[40px] font-semibold text-blue-600'>{correctAnswersCount}</span>;
-                    break;
-                }
-
-                return (
-                  <>
-                    {result}
-                    <span>/</span>
-                    <span>{questionsWithShuffledOptions.length}</span>
-                  </>
-                );
-              })()}
-            </div>
-          </div>
-          <div className='border-[1px] rounded-[10px] py-[10px] px-[15px] bg-gray-200 flex m-auto mt-[30px] items-center gap-[2px] hover:bg-gray-50 transition hover:delay-150 hover:duration-300 hover:ease-in-out hover:scale-105 cursor-pointer' onClick={() => handleReset()}>
-            <TbReload />
-            <span>Reset</span>
-          </div>
-        </div>
+        <Result
+          correctAnswersCount={correctAnswersCount}
+          questionsWithShuffledOptions={questionsWithShuffledOptions}
+          handleReset={handleReset}  
+        />
       ) : (
-        <div className='flex flex-col p-[20px] w-full h-fit place-content-between'>
+        <div className='flex gap-3 p-[20px] w-full h-fit place-content-between '>
+          <div className=' border-[1px]  rounded-[10px] shadow-sm p-[20px] w-full '>
           <Question
             question={questionsWithShuffledOptions[currentQuestion]}
             flattenedQuestions={flattenedQuestions[currentQuestion]}
@@ -118,6 +92,12 @@ const Quiz = () => {
                 <MdNavigateNext />
             </div>          
           </div>
+          </div>        
+          <ListQuestions 
+            flattenedQuestions={flattenedQuestions}
+          />
+          
+          
         </div>
       )}
     </div>
