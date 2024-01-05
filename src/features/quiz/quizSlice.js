@@ -18,7 +18,13 @@ const flattenQuestions = (questions, parentParagraph = []) => {
       questionType: question.questionType,
       subQuestionCount: question.subQuestionCount,
       questionText: question.questionText,
-      answerOptions: question.answerOptions,
+      answerOptions: question.answerOptions
+        ? question.answerOptions.map((answer, index) => ({
+            id: index,
+            ...answer,
+            isSelected: false,
+          }))
+        : [],
       parentParagraph: combinedParentParagraph,
       parentID: question.parentID,
     };
@@ -68,7 +74,6 @@ const quizSlice = createSlice({
   name: "quiz",
   initialState: {
     currentQuestion: 0,
-    correct: false,
     score: 0,
     questionsCount: flattenedQuestionsCount(),
     showScore: false,
@@ -81,11 +86,11 @@ const quizSlice = createSlice({
     prevQuestion: (state) => {
       state.currentQuestion -= 1;
     },
-    answerCorrectly: (state, action) => {
-      state.correct = action.payload;
-    },
     setCurrentQuestion: (state, action) => {
       state.currentQuestion = action.payload;
+    },
+    updateFlattenedQuestions: (state, action) => {
+      state.flattenedQuestions = action.payload;
     },
     setScore: (state, action) => {
       state.score = action.payload;
@@ -106,10 +111,8 @@ const quizSlice = createSlice({
 export const {
   nextQuestion,
   prevQuestion,
-  answerCorrectly,
-  previousAnswer,
   setCurrentQuestion,
-  correctAnswers,
+  updateFlattenedQuestions,
   setScore,
   setShowScore,
   resetQuestion,

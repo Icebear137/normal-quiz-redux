@@ -3,29 +3,23 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   nextQuestion,
   prevQuestion,
-  answerCorrectly,
+  updateFlattenedQuestions,
   setScore,
   setShowScore,
   resetQuestion,
   resetScore,
 } from "./quizSlice";
 import Question from "./Question";
-import { TbReload } from "react-icons/tb";
 import { MdNavigateNext, MdNavigateBefore } from "react-icons/md";
 import Result from "./Result";
 import ListQuestions from "./ListQuestions";
 import Timer from "./Timer";
+import _ from "lodash";
 
 const Quiz = () => {
   const dispatch = useDispatch();
-  const {
-    currentQuestion,
-    correct,
-    score,
-    questionsCount,
-    showScore,
-    flattenedQuestions,
-  } = useSelector((state) => state.quiz);
+  const { currentQuestion, questionsCount, showScore, flattenedQuestions } =
+    useSelector((state) => state.quiz);
 
   const [resetTimer, setResetTimer] = useState(false);
 
@@ -33,7 +27,6 @@ const Quiz = () => {
   const questionAnswered = useRef(Array(questionsCount).fill(null));
   const [correctAnswersCount, setCorrectAnswersCount] = useState(0);
   const [questionAnswerCount, setQuestionAnswerCount] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState(null);
 
   useEffect(() => {
     if (showScore) {
@@ -53,17 +46,29 @@ const Quiz = () => {
   }, [allQuestionsAnswer, questionAnswered, showScore]);
 
   const handleNext = () => {
-    if (correct) {
+    const currentQuestionData = flattenedQuestions[currentQuestion];
+
+    if (
+      currentQuestionData.answerOptions.every(
+        (item) => item.isSelected === item.isCorrect
+      )
+    ) {
       allQuestionsAnswer.current[currentQuestion] = true;
     }
 
-    questionAnswered.current[currentQuestion] = selectedAnswer;
+    if (
+      currentQuestionData.answerOptions.every(
+        (item) => item.isSelected === false
+      )
+    ) {
+      questionAnswered.current[currentQuestion] = null;
+    } else {
+      questionAnswered.current[currentQuestion] = true;
+    }
+
     console.log(questionAnswered.current);
 
-    // clean selected answer
-    setSelectedAnswer(null);
     dispatch(nextQuestion());
-    dispatch(answerCorrectly(false));
 
     if (currentQuestion === questionsCount - 1) {
       dispatch(setScore(correctAnswersCount));
@@ -94,6 +99,25 @@ const Quiz = () => {
     }, 10);
   };
 
+  const handleCheckbox = (answerId, questionId) => {
+    let clone = _.cloneDeep(flattenedQuestions);
+    let question = clone.find((item) => +item.questionID === +questionId);
+
+    if (question && question.answerOptions) {
+      question.answerOptions = question.answerOptions.map((item) => {
+        if (+item.id === +answerId) {
+          item.isSelected = !item.isSelected;
+        }
+        return item;
+      });
+      let index = clone.findIndex((item) => +item.questionID === +questionId);
+      if (index !== -1) {
+        clone[index] = question;
+        dispatch(updateFlattenedQuestions(clone));
+      }
+    }
+  };
+
   return (
     <div className="quiz flex m-auto w-full ">
       {showScore ? (
@@ -113,7 +137,7 @@ const Quiz = () => {
           <div className=" border-[1px]  rounded-[10px] shadow-sm p-[20px] w-full ">
             <Question
               flattenedQuestions={flattenedQuestions[currentQuestion]}
-              setSelectedAnswer={setSelectedAnswer}
+              handleCheckbox={handleCheckbox}
             />
             <div className="flex place-content-between bottom-0 p-[20px] mt-[30px]">
               {currentQuestion === 0 ? null : (
